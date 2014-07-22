@@ -1,8 +1,8 @@
-import UIKit
+import SpriteKit
+import XCPlayground
 
 func ==(lhs:Point, rhs:Point) -> Bool{ return lhs.x == rhs.x && lhs.y == rhs.y }
 
-//Printable for hashing
 struct Point : Hashable {
     let x: Int, y: Int
     
@@ -67,52 +67,52 @@ class ConwayRulesEngine {
     }
 }
 
-class World : UIView {
-    let cellSize: Int = 20
+class World : SKScene {
     let engine = ConwayRulesEngine()
-    var cells = [Point: UIView]()
+    var cells = [Point: SKSpriteNode]()
     
-    init(initialState: [Point]) {
-        
-        super.init(frame:CGRect(x:0, y:0, width:200, height:200))
-        self.backgroundColor = UIColor.lightGrayColor()
-        reset(initialState, die: [])
-    }
-    
-    func cellAtCoordinate(coordinate: Point) -> UIView {
-        var cell = UIView(frame: CGRect(x: Int(center.x) + cellSize * coordinate.x - cellSize / 2, y: Int(center.y) + cellSize * coordinate.y - cellSize/2, width: cellSize, height: cellSize))
-        cell.backgroundColor = UIColor.blackColor()
-        return cell
-    }
-    
-    func reset (born: [Point], die: [Point]) {
-        
-        for point in die {
-            cells[point]?.removeFromSuperview()
-            cells.removeValueForKey(point)
-        }
-        
-        for point in born {
-            let view = cellAtCoordinate(point)
-            cells[point] = view
-            self.addSubview(view)
-        }
-    }
-
-    func nextIteration () {
-        let (born, die) = engine.iterate(Array(cells.keys))
-        reset(born, die: die)
-    }
+//    func cellAtCoordinate(coordinate: Point) -> SKSpriteNode {
+//        var cell = SKSpriteNode(color: UIColor.blackColor(), size: CGSize(width: 10, height: 10))
+//        let point = CGPoint(x: Int(size.width) / 2 + coordinate.x, y: Int(size.height) / 2 + coordinate.y)
+//        cell.position = point
+//        return cell
+//    }
+//    
+//    override func didMoveToView(view: SKView!) {
+//        addNodes([Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:1, y: 0), Point(x:-2, y:1), Point(x:-1, y:1), Point(x:0, y:1)])
+//    }
+//    
+//    func removeNodes(points: [Point]) {
+//        for point in points {
+//            if let node = self.cells[point] {
+//                self.removeChildrenInArray([node])
+//                cells.removeValueForKey(point)
+//            }
+//        }
+//    }
+//    
+//    func addNodes(points: [Point]) {
+//        for point in points {
+//            let view = cellAtCoordinate(point)
+//            cells[point] = view
+//            self.addChild(view)
+//        }
+//    }
+//    
+//    override func update(currentTime: NSTimeInterval) {
+//
+//    }
 }
 
-let toad = [Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:1, y: 0), Point(x:-2, y:1), Point(x:-1, y:1), Point(x:0, y:1)]
-let blinker = [Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:1, y: 0)]
-let beacon = [Point(x:-2, y: -2), Point(x:-1, y: -2), Point(x:-2, y: -1), Point(x:1, y: 1), Point(x:0, y: 1), Point(x:1, y: 0)]
-let glider = [Point(x:-2, y: 0), Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:0, y: -1), Point(x:-1, y: -2)]
+//let toad =
+//let blinker = [Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:1, y: 0)]
+//let beacon = [Point(x:-2, y: -2), Point(x:-1, y: -2), Point(x:-2, y: -1), Point(x:1, y: 1), Point(x:0, y: 1), Point(x:1, y: 0)]
+//let glider = [Point(x:-2, y: 0), Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:0, y: -1), Point(x:-1, y: -2)]
 
-let world = World(initialState:toad)
+let view = SKView(frame: CGRect(x:0, y:0, width:200, height:200))
+XCPShowView("View", view)
 
-for _ in 1 ... 6 {
-    world
-    world.nextIteration()
-}
+let world = World(size: CGSize(width:200, height:200))
+world.backgroundColor = UIColor.greenColor()
+view.presentScene(world)
+

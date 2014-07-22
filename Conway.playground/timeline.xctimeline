@@ -2,29 +2,5 @@
 <Timeline
    version = "3.0">
    <TimelineItems>
-      <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=0&amp;CharacterRangeLoc=2124&amp;EndingColumnNumber=52&amp;EndingLineNumber=68&amp;StartingColumnNumber=0&amp;StartingLineNumber=68&amp;Timestamp=427699491.862235">
-      </LoggerValueHistoryTimelineItem>
-      <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=0&amp;CharacterRangeLoc=1375&amp;EndingColumnNumber=38&amp;EndingLineNumber=44&amp;StartingColumnNumber=27&amp;StartingLineNumber=44&amp;Timestamp=427699491.862336">
-      </LoggerValueHistoryTimelineItem>
-      <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=0&amp;CharacterRangeLoc=2124&amp;EndingColumnNumber=3&amp;EndingLineNumber=68&amp;StartingColumnNumber=0&amp;StartingLineNumber=68&amp;Timestamp=427699491.86241">
-      </LoggerValueHistoryTimelineItem>
-      <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=0&amp;CharacterRangeLoc=2124&amp;EndingColumnNumber=4&amp;EndingLineNumber=68&amp;StartingColumnNumber=0&amp;StartingLineNumber=68&amp;Timestamp=427699491.862479">
-      </LoggerValueHistoryTimelineItem>
-      <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=0&amp;CharacterRangeLoc=3702&amp;EndingColumnNumber=3&amp;EndingLineNumber=112&amp;StartingColumnNumber=0&amp;StartingLineNumber=112&amp;Timestamp=427699645.336673">
-      </LoggerValueHistoryTimelineItem>
-      <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=0&amp;CharacterRangeLoc=3702&amp;EndingColumnNumber=4&amp;EndingLineNumber=112&amp;StartingColumnNumber=0&amp;StartingLineNumber=112&amp;Timestamp=427699645.336742">
-      </LoggerValueHistoryTimelineItem>
-      <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=5&amp;CharacterRangeLoc=3706&amp;EndingColumnNumber=9&amp;EndingLineNumber=112&amp;StartingColumnNumber=4&amp;StartingLineNumber=112&amp;Timestamp=427699645.153557">
-      </LoggerValueHistoryTimelineItem>
-      <LoggerValueHistoryTimelineItem
-         documentLocation = "#CharacterRangeLen=5&amp;CharacterRangeLoc=3763&amp;EndingColumnNumber=9&amp;EndingLineNumber=115&amp;StartingColumnNumber=4&amp;StartingLineNumber=115&amp;Timestamp=427699672.170838">
-      </LoggerValueHistoryTimelineItem>
    </TimelineItems>
 </Timeline>
