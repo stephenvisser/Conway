@@ -37,7 +37,7 @@ class ConwayRulesEngine {
     
     private func findNewCells(originals: [Point]) -> [Point] {
         var candidates = [Point: Point](minimumCapacity: 20)
-
+        
         //Add all surrounding cells, eliminating duplicates
         for point in originals {
             let surroundings = self.surroundings(point)
@@ -47,7 +47,7 @@ class ConwayRulesEngine {
                 }
             }
         }
-
+        
         //Remove all original points
         for point in originals {
             candidates.removeValueForKey(point)
@@ -71,37 +71,49 @@ class World : SKScene {
     let engine = ConwayRulesEngine()
     var cells = [Point: SKSpriteNode]()
     
-//    func cellAtCoordinate(coordinate: Point) -> SKSpriteNode {
-//        var cell = SKSpriteNode(color: UIColor.blackColor(), size: CGSize(width: 10, height: 10))
-//        let point = CGPoint(x: Int(size.width) / 2 + coordinate.x, y: Int(size.height) / 2 + coordinate.y)
-//        cell.position = point
-//        return cell
-//    }
-//    
-//    override func didMoveToView(view: SKView!) {
-//        addNodes([Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:1, y: 0), Point(x:-2, y:1), Point(x:-1, y:1), Point(x:0, y:1)])
-//    }
-//    
-//    func removeNodes(points: [Point]) {
-//        for point in points {
-//            if let node = self.cells[point] {
-//                self.removeChildrenInArray([node])
-//                cells.removeValueForKey(point)
-//            }
-//        }
-//    }
-//    
-//    func addNodes(points: [Point]) {
-//        for point in points {
-//            let view = cellAtCoordinate(point)
-//            cells[point] = view
-//            self.addChild(view)
-//        }
-//    }
-//    
-//    override func update(currentTime: NSTimeInterval) {
-//
-//    }
+    func cellAtCoordinate(coordinate: Point) -> SKSpriteNode {
+        var cell = SKSpriteNode(color: NSColor.blackColor(), size: CGSize(width: 1, height: 1))
+        let point = CGPoint(x: Int(size.width) / 2 + coordinate.x, y: Int(size.height) / 2 + coordinate.y)
+        cell.position = point
+        return cell
+    }
+    
+    override func didMoveToView(view: SKView!) {
+        addNodes([Point(x:-2, y: 0), Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:0, y: -1), Point(x:-1, y: -2)], remove:[])
+    }
+    
+    
+    func addNodes(points: [Point], remove: [Point]) {
+        
+        self.runAction(SKAction.sequence([SKAction.runBlock({
+            for point in remove {
+                if let node = self.cells[point] {
+                    self.cells.removeValueForKey(point)
+                    node.runAction(SKAction.fadeOutWithDuration(0.2))
+                }
+            }
+            
+            for point in points {
+                let view = self.cellAtCoordinate(point)
+                self.cells[point] = view
+                view.alpha = 0.0
+                self.addChild(view)
+                view.runAction(SKAction.fadeInWithDuration(0.2))
+                
+            }
+            
+            }), SKAction.waitForDuration(0.2), SKAction.runBlock({
+                for point in remove {
+                    if let node = self.cells[point] {
+                        self.cells.removeValueForKey(point)
+                        node.runAction(SKAction.removeFromParent())
+                    }
+                }
+                let (born, die) = self.engine.iterate(Array(self.cells.keys))
+                self.addNodes(born, remove: die)
+                })]))
+    }
+    
 }
 
 //let toad =
@@ -112,7 +124,7 @@ class World : SKScene {
 let view = SKView(frame: CGRect(x:0, y:0, width:200, height:200))
 XCPShowView("View", view)
 
-let world = World(size: CGSize(width:200, height:200))
-world.backgroundColor = UIColor.greenColor()
+let world = World(size: CGSize(width:10, height:10))
+world.backgroundColor = NSColor.greenColor()
 view.presentScene(world)
 
