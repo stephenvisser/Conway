@@ -1,148 +1,118 @@
 import UIKit
 
-struct Coordinate : Printable {
-    let x: Int, y: Int, cell: UIView?
+func ==(lhs:Point, rhs:Point) -> Bool{ return lhs.x == rhs.x && lhs.y == rhs.y }
 
-    init (x:Int, y:Int) {
-        self.x = x
-        self.y = y
+//Printable for hashing
+struct Point : Hashable {
+    let x: Int, y: Int
+    
+    var hashValue :Int { return 31 * x + 7 * y }
+}
+
+class ConwayRulesEngine {
+    
+    private func surroundings(point:Point) -> [Point] {
+        return [
+            (x:-1, y:-1),
+            (x:-1, y:0),
+            (x:-1, y:1),
+            (x:0, y:-1),
+            (x:0, y:1),
+            (x:1, y:-1),
+            (x:1, y:0),
+            (x:1, y:1)
+            ].map { position in Point(x: point.x + position.x, y: point.y + position.y) }
     }
     
-    init (x:Int, y:Int, cell: UIView) {
-        self.x = x
-        self.y = y
-        self.cell = cell
-    }
-    
-    func surroundings() -> [Coordinate] {
-        let positions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
-        
-        return positions.map { position in Coordinate(x: self.x + position.0, y: self.y + position.1)
-        }
-    }
-    
-    func isNeighbor(candidate: Coordinate) -> Bool {
-        switch (abs(x - candidate.x), abs(y - candidate.y)) {
+    private func isNeighbor(pointA: Point, pointB: Point) -> Bool {
+        switch (abs(pointA.x - pointB.x), abs(pointA.y - pointB.y)) {
         case (1,0), (1,1), (0,1): return true
         default: return false
         }
     }
-   
-    var description : String { return "\(x),\(y)" }
-}
-
-class ConwayEngine {
     
-    class func _findNewCells(points: [Coordinate]) -> [Coordinate] {
-        var candidates = Dictionary<String, Coordinate>(minimumCapacity: 10)
-        
-        for point in points {
-            candidates[point.description] = point
-        }
-        
-        for point in points {
-            let surroundings = point.surroundings()
-            for surroundingsPoint in surroundings {
-                if !candidates[surroundingsPoint.description] {
-                    candidates[surroundingsPoint.description] = surroundingsPoint
+    private func neighborCount(cell: Point, forWorld world: [Point]) -> Int {
+        return world.reduce(0) { count, point in count + (self.isNeighbor(cell, pointB: point) ? 1 : 0) }
+    }
+    
+    private func findNewCells(originals: [Point]) -> [Point] {
+        var candidates = [Point: Point](minimumCapacity: 20)
+
+        //Add all surrounding cells, eliminating duplicates
+        for point in originals {
+            let surroundings = self.surroundings(point)
+            for neighbor in surroundings {
+                if !candidates[neighbor] {
+                    candidates[neighbor] = neighbor
                 }
             }
+        }
+
+        //Remove all original points
+        for point in originals {
+            candidates.removeValueForKey(point)
         }
         
         return Array(candidates.values)
     }
     
-    class func iterate (points: [Coordinate]) -> (born: [Coordinate], die: [Coordinate]) {
-        var born = Array<Coordinate>(),
-            die = Array<Coordinate>()
-        var newPoints = _findNewCells(points)
-        for cell in newPoints {
-            var count: Int = 0
-            for candidate in points {
-                candidate
-                if cell.isNeighbor(candidate) {
-                    count++
-                }
-            }
-            if cell.cell {
-                if count > 3  || count < 2 {
-                    die.append(cell)
-                }
-            } else {
-                if count == 3 {
-                    born.append(cell)
-                }
-            }
+    func iterate (lastGeneration: [Point]) -> (born: [Point], die: [Point]) {
+        let born = findNewCells(lastGeneration).filter { cell in self.neighborCount(cell, forWorld: lastGeneration) == 3 }
+        
+        let die = lastGeneration.filter { cell in
+            let count = self.neighborCount(cell, forWorld: lastGeneration)
+            return count > 3  || count < 2
         }
         return (born, die)
     }
 }
 
-class CellFactory {
+class World : UIView {
+    let cellSize: Int = 20
+    let engine = ConwayRulesEngine()
+    var cells = [Point: UIView]()
     
-    let cellSize: Int, canvasSize: Int
-    
-    var center:CGPoint {
-        return CGPoint(x: canvasSize / 2, y: canvasSize / 2)
+    init(initialState: [Point]) {
+        
+        super.init(frame:CGRect(x:0, y:0, width:200, height:200))
+        self.backgroundColor = UIColor.lightGrayColor()
+        reset(initialState, die: [])
     }
     
-    init (cellSize: Int, canvasSize: Int) {
-        self.cellSize = cellSize
-        self.canvasSize = canvasSize
-    }
-    
-    func cellAtCoordinate(coordinate: Coordinate) -> UIView {
+    func cellAtCoordinate(coordinate: Point) -> UIView {
         var cell = UIView(frame: CGRect(x: Int(center.x) + cellSize * coordinate.x - cellSize / 2, y: Int(center.y) + cellSize * coordinate.y - cellSize/2, width: cellSize, height: cellSize))
         cell.backgroundColor = UIColor.blackColor()
         return cell
     }
     
-    func coordinateOfCell(cell: UIView) -> Coordinate {
-        let cellOrigin = cell.frame.origin,
-        normalizedCenterOrigin = CGPointApplyAffineTransform(center, CGAffineTransformMakeTranslation(CGFloat(-cellSize/2), CGFloat(-cellSize/2)))
-        return Coordinate(x:Int((cellOrigin.x - normalizedCenterOrigin.x) / CGFloat(cellSize)), y:Int((cellOrigin.y - normalizedCenterOrigin.y) / CGFloat(cellSize)), cell: cell)
-    }
-}
-
-
-class World : UIView {
-    
-    let cellFactory = CellFactory(cellSize: 20, canvasSize: 200)
-    
-    init(initialState: [Coordinate]) {
+    func reset (born: [Point], die: [Point]) {
         
-        super.init(frame:CGRect(x:0, y:0, width:cellFactory.canvasSize, height:cellFactory.canvasSize))
-        self.backgroundColor = UIColor.lightGrayColor()
-        reset(initialState, die: [])
-    }
-    
-    func reset (born: [Coordinate], die: [Coordinate]) {
-        let newCells = born.map { cell in self.cellFactory.cellAtCoordinate(cell) }
-        for cell in newCells {
-            self.addSubview(cell)
+        for point in die {
+            cells[point]?.removeFromSuperview()
+            cells.removeValueForKey(point)
         }
         
-        for cell in die {
-            if let c = cell.cell {
-                c.removeFromSuperview()
-            }
+        for point in born {
+            let view = cellAtCoordinate(point)
+            cells[point] = view
+            self.addSubview(view)
         }
     }
 
     func nextIteration () {
-        let (born, die) = ConwayEngine.iterate(subviews.map { cell in self.cellFactory.coordinateOfCell(cell as UIView) })
+        let (born, die) = engine.iterate(Array(cells.keys))
         reset(born, die: die)
     }
 }
 
-let toad = [Coordinate(x:-1, y: 0), Coordinate(x:0, y: 0), Coordinate(x:1, y: 0), Coordinate(x:-2, y:1), Coordinate(x:-1, y:1), Coordinate(x:0, y:1)]
-let blinker = [Coordinate(x:-1, y: 0), Coordinate(x:0, y: 0), Coordinate(x:1, y: 0)]
-let beacon = [Coordinate(x:-2, y: -2), Coordinate(x:-1, y: -2), Coordinate(x:-2, y: -1), Coordinate(x:1, y: 1), Coordinate(x:0, y: 1), Coordinate(x:1, y: 0)]
-let glider = [Coordinate(x:-2, y: 0), Coordinate(x:-1, y: 0), Coordinate(x:0, y: 0), Coordinate(x:0, y: -1), Coordinate(x:-1, y: -2)]
+let toad = [Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:1, y: 0), Point(x:-2, y:1), Point(x:-1, y:1), Point(x:0, y:1)]
+let blinker = [Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:1, y: 0)]
+let beacon = [Point(x:-2, y: -2), Point(x:-1, y: -2), Point(x:-2, y: -1), Point(x:1, y: 1), Point(x:0, y: 1), Point(x:1, y: 0)]
+let glider = [Point(x:-2, y: 0), Point(x:-1, y: 0), Point(x:0, y: 0), Point(x:0, y: -1), Point(x:-1, y: -2)]
 
 let world = World(initialState:toad)
 
-for _ in 1 ... 4 {
+for _ in 1 ... 6 {
     world
     world.nextIteration()
 }
