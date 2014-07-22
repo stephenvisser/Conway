@@ -69,12 +69,14 @@ class ConwayRulesEngine {
 
 class World : SKScene {
     let engine = ConwayRulesEngine()
-    var cells = [Point: SKSpriteNode]()
+    var cells = [Point: SKNode]()
 
     var dieAction: SKAction!, bornAction: SKAction!
     
-    func cellAtCoordinate(coordinate: Point) -> SKSpriteNode {
-        var cell = SKSpriteNode(color: NSColor(red:68/255.0, green:169/255.0, blue:157/255.0, alpha:0.9), size: CGSize(width: 1, height: 1))
+    func cellAtCoordinate(coordinate: Point) -> SKNode {
+        var cell = SKShapeNode(rect: CGRect(x: 0, y: 0, width: 1, height: 1))
+        cell.fillColor = NSColor(red:68/255.0, green:169/255.0, blue:157/255.0, alpha:0.9)
+        cell.lineWidth = 0
         cell.position = CGPoint(x: Int(size.width) / 2 + coordinate.x, y: Int(size.height) / 2 + coordinate.y)
         return cell
     }
