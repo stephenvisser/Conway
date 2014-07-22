@@ -105,7 +105,6 @@ class CellFactory {
 }
 
 
-
 class World : UIView {
     
     let cellFactory = CellFactory(cellSize: 20, canvasSize: 200)
@@ -120,26 +119,14 @@ class World : UIView {
     func reset (born: [Coordinate], die: [Coordinate]) {
         let newCells = born.map { cell in self.cellFactory.cellAtCoordinate(cell) }
         for cell in newCells {
-            cell.alpha = 0.0
             self.addSubview(cell)
         }
-        UIView.animateWithDuration(2, animations: {
-            for cell in die {
-                if let c = cell.cell {
-                 c.alpha = 0.4
-                }
+        
+        for cell in die {
+            if let c = cell.cell {
+                c.removeFromSuperview()
             }
-            for cell in newCells {
-                cell.alpha = 0.4
-            }
-            self.backgroundColor = UIColor.purpleColor()
-            }, completion: { rawf in
-                rawf
-                for cell in die {
-                    cell.cell?.removeFromSuperview()
-                }
-                self.nextIteration()
-            })
+        }
     }
 
     func nextIteration () {
@@ -154,3 +141,8 @@ let beacon = [Coordinate(x:-2, y: -2), Coordinate(x:-1, y: -2), Coordinate(x:-2,
 let glider = [Coordinate(x:-2, y: 0), Coordinate(x:-1, y: 0), Coordinate(x:0, y: 0), Coordinate(x:0, y: -1), Coordinate(x:-1, y: -2)]
 
 let world = World(initialState:toad)
+
+for _ in 1 ... 4 {
+    world
+    world.nextIteration()
+}
